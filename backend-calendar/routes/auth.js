@@ -5,11 +5,27 @@ host + /api/auth
 const express = require('express');
 const router = express.Router();
 const auth = require('../controllers/auth')
+const { check } = require('express-validator');
+const { fieldValidates } = require('../middlewares/field-valiators');
 
 
-router.post('/new', auth.crearUsuario);
+router.post(
+    '/new',
+    [
+        check('name', 'El nombre es obligatorio').not().isEmpty(),
+        check('email', 'El email es obligatorio').isEmail(),
+        check('password', 'El password debe de ser obligatorio').isLength(6),
+        fieldValidates
+    ],
+    auth.crearUsuario);
 
-router.post('/', auth.loginUsuario);
+router.post('/',
+[
+    check('email', 'El email es obligatorio').isEmail(),
+    check('password', 'El password debe de ser obligatorio').isLength(6),
+    fieldValidates
+],
+auth.loginUsuario);
 
 router.get('/renew', auth.revalidarToken);
 
