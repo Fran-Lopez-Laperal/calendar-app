@@ -1,9 +1,13 @@
 require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose')
 
 
 //Crear el servido de express
 const app = express();
+
+//Base de datos
+require('./config/config.db')
 
 
 //Directorio publico

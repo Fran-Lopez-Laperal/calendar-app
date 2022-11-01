@@ -1,18 +1,48 @@
 
 const { response } = require('express');
+const bcrypt = require('bcryptjs')
+const User = require('../models/user.model')
 
-module.exports.crearUsuario = (req, res = response, next) => {
+module.exports.crearUsuario = async (req, res = response, next) => {
+
+    const { email, password } = req.body;
 
 
-    const { name, email, password } = req.body;
+    try {
 
-    res.status(201).json({
-        ok: true,
-        msg: 'registro',
-        name,
-        email,
-        password
-    })
+        let user = await User.findOne({ email })
+
+        if (user) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Un usuario existe con ese correo'
+            })
+        }
+
+        user = new User(req.body)
+
+        //Encriptar constraseña con librería bcryptjs
+
+        await user.save()
+
+        res.status(201).json({
+            ok: true,
+            uid: user.id,
+            name: user.name
+        });
+
+
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            ok: false,
+            msg: 'Email ya existe'
+        })
+
+    }
+
+
 }
 
 
