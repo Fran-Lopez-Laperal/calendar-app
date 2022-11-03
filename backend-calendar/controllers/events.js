@@ -49,43 +49,42 @@ module.exports.updateEvent = async (req, res) => {
     try {
         const event = await Event.findById(eventID);
         if (!event) {
-            res.status(404).json({
+           return res.status(404).json({
 
                 ok: false,
                 msg: "Evento no encontrado por ese ID"
             })
         }
 
-        if (event.user.toString() !== uid){
+        if (event.user.toString() !== uid) {
             return res.status(401).json({
-                od:false,
+                od: false,
                 msg: "No tiene privilegio de editar el evento"
             })
         }
 
         const nuevoEvento = {
             ...req.body,
-            user:uid
+            user: uid
         }
 
 
-        const updateEvent = await Event.findByIdAndUpdate(eventID, nuevoEvento, {new: true});
+        const updateEvent = await Event.findByIdAndUpdate(eventID, nuevoEvento, { new: true });
 
         res.json({
-            ok:true,
+            ok: true,
             event: updateEvent
         })
 
 
     } catch (error) {
+
+
         res.status(500).json({
             ok: false,
             msg: 'Hablé con el administrador'
         })
     }
-
-
-
 
     res.json({
         ok: true,
@@ -93,34 +92,41 @@ module.exports.updateEvent = async (req, res) => {
     })
 }
 
-module.exports.deleteEvent = (req, res) => {
-    res.json({
-        ok: true,
-        msg: 'deleteEvents'
-    })
+
+
+
+module.exports.deleteEvent = async(req, res, next) => {
+
+
+    const eventID = req.params.id;
+    const uid = req.uid;
+
+    try {
+        const event = await Event.findById(eventID);
+        if (!event) {
+            return res.status(404).json({
+
+                ok: false,
+                msg: "Evento no encontrado por ese ID"
+            })
+        }
+
+        if (event.user.toString() !== uid) {
+            return res.status(401).json({
+                od: false,
+                msg: "No tiene privilegio de eliminar el evento"
+            })
+        }
+
+        await Event.findByIdAndDelete(eventID);
+
+        res.json({ok: true})
+
+
+    } catch (error) {
+        res.status(500).json({
+            ok: false,
+            msg: 'Hablé con el administrador'
+        })
+    }   
 }
-
-
-
-
-// {
-//     ok: true,
-//     msg: 'getEventos'
-// }
-
-
-// {
-//     ok: true,
-//     msg: 'crearEventos
-// }
-
-// {
-//     ok: true,
-//     msg: ' actualizarEvento'
-// }
-
-
-// {
-//     ok: true,
-//     msg: ' eliminarEvento'
-// }
